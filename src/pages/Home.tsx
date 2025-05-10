@@ -1,5 +1,5 @@
 import MessageListItem from '../components/MessageListItem';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Message, getMessages } from '../data/messages';
 import {
   IonContent,
@@ -10,47 +10,89 @@ import {
   IonRefresherContent,
   IonTitle,
   IonToolbar,
-  useIonViewWillEnter
+  useIonViewWillEnter,
+  IonButton,
+  IonModal,
+  IonInput,
+  IonItem,
+  IonButtons
 } from '@ionic/react';
 import './Home.css';
 
 const Home: React.FC = () => {
 
-  const [messages, setMessages] = useState<Message[]>([]);
+  const modal = useRef<HTMLIonModalElement>(null);
+  const input = useRef<HTMLIonInputElement>(null);
+  const [todos, setTodos] = useState<any[]>([]);
 
-  useIonViewWillEnter(() => {
-    const msgs = getMessages();
-    setMessages(msgs);
-  });
+  function loadTodos() {
+    let todos = JSON.parse(localStorage.getItem('todos') || '[]');
+    setTodos(todos);
+  }
 
-  const refresh = (e: CustomEvent) => {
-    setTimeout(() => {
-      e.detail.complete();
-    }, 3000);
-  };
+  function confirm() {
+    let todo = input.current?.value;
+    let todos = JSON.parse(localStorage.getItem('todos') || '[]');
+    todos.push(todo);
+    localStorage.setItem('todos', JSON.stringify(todos));
+    setTodos(todos);
+
+    modal.current?.dismiss(todo, 'confirm');
+  }
+
+  useEffect(() => {
+    loadTodos();
+  }, []);
 
   return (
     <IonPage id="home-page">
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Inbox</IonTitle>
+          <IonTitle>My Todos</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
-        <IonRefresher slot="fixed" onIonRefresh={refresh}>
-          <IonRefresherContent></IonRefresherContent>
-        </IonRefresher>
-
         <IonHeader collapse="condense">
           <IonToolbar>
             <IonTitle size="large">
-              Inbox
+              To Do List
             </IonTitle>
           </IonToolbar>
         </IonHeader>
 
+        <IonButton id="open-modal" expand="block">
+          Add Todo
+        </IonButton>
+
+        <IonModal ref={modal} trigger="open-modal">
+          <IonHeader>
+            <IonToolbar>
+              <IonButtons slot="start">
+                <IonButton onClick={() => modal.current?.dismiss()}>Cancel</IonButton>
+              </IonButtons>
+              <IonTitle>Add Todo</IonTitle>
+              <IonButtons slot="end">
+                <IonButton strong={true} onClick={() => confirm()}>
+                  Confirm
+                </IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent className="ion-padding">
+            <IonItem>
+              <IonInput
+                label="Enter your name"
+                labelPlacement="stacked"
+                ref={input}
+                type="text"
+                placeholder="Your name"
+              />
+            </IonItem>
+          </IonContent>
+        </IonModal>
+
         <IonList>
-          {messages.map(m => <MessageListItem key={m.id} message={m} />)}
+          {todos.map((todo: string, index: number) => <MessageListItem key={index} id={index} todo={todo} setTodos={setTodos} />)}
         </IonList>
       </IonContent>
     </IonPage>
