@@ -4,7 +4,7 @@ A modern Todo application built with Ionic Framework, featuring a clean and intu
 
 ## Live Demo
 
-- 🌐 Web Application: [https://ionic-todos.netlify.app/home](https://ionic-todos.netlify.app)
+- 🌐 Web Application: [https://ionic-todos.netlify.app](https://ionic-todos.netlify.app)
 - 📺 Video Demo: [https://youtu.be/zd7fMK1OkTc](https://youtu.be/zd7fMK1OkTc)
 
 ## Getting Started
